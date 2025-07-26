@@ -1,0 +1,67 @@
+/* Import Google Fonts and Tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+/*
+  Add this block to set a site-wide default border color.
+*/
+@layer base {
+  * {
+    @apply border-zinc-200;
+  }
+}
+
+/* Define your custom color variable here */
+:root {
+  --primary-color: #5F6FFF;
+}
+
+
+/* Define your reusable utility classes */
+@layer utilities {
+  .text-primary-custom {
+    @apply text-[var(--primary-color)];
+  }
+  .bg-primary-custom {
+    @apply bg-[var(--primary-color)];
+  }
+  .border-primary-custom {
+    @apply border-[var(--primary-color)];
+  }
+
+  /* Optional: Create hover versions */
+  .hover\:bg-primary-custom:hover {
+    @apply bg-[var(--primary-color)];
+  }
+  .hover\:text-primary-custom:hover {
+    @apply text-[var(--primary-color)];
+  }
+
+  /* Your other custom classes */
+  .grid-cols-auto {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+
+/* Your base styles */
+* {
+  font-family: Outfit;
+}
+
+.active hr {
+  @apply block;
+}
+
+::-webkit-scrollbar {
+  @apply hidden;
+}
+
+@layer components {
+  @media (max-width: 740px) {
+    .active p {
+      color: white;
+      background-color: var(--primary-color);
+    }
+  }
+}
