@@ -11,26 +11,30 @@ const connectCloudinary = async () => {
 };
 
 const uploadOnCloudinary = async (filePath) => {
-    try{
-           if(!filePath) {
-               return null;
-           }
-           const response = await cloudinary.uploader.upload(filePath,{
-            resource_type: "image"
-           })
-           //file has been uploaded to cloudinary
-        //    console.log("File uploaded successfully to Cloudinary",response.url);
-        // console.log("cloudingary response:", response);
-         fs.unlinkSync(filePath);
+  try {
+    if (!filePath) return null;
 
-           return response;
+    const response = await cloudinary.uploader.upload(filePath, {
+      resource_type: "image",
+    });
+
+    // ✅ Delete temp file safely if it exists
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
-    catch(error)
-    {
-        fs.unlinkSync(filePath); // delete the file from local storage as upload failed
-        return null;
+
+    return response;
+  } catch (error) {
+    console.error("Cloudinary upload failed:", error.message);
+
+    // ✅ Safe delete only if file exists
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
-}    
+
+    return null;
+  }
+};
 
 export default connectCloudinary;
 export { uploadOnCloudinary };

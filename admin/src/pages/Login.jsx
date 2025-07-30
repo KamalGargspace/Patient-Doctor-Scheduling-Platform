@@ -9,6 +9,7 @@ const Login = () => {
   const [state, setState] = useState("Admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // <-- 1. ADDED STATE
   const { setAccessToken, backendUrl } = useContext(AdminContext);
 
   const onSubmitHandler = async (event) => {
@@ -16,17 +17,13 @@ const Login = () => {
 
     try {
       if (state === "Admin") {
-        // console.log("Backend URL:", backendUrl);
-
         try {
           const response = await axios.post(backendUrl + "/api/admin/login", {
             email,
             password,
           });
-          //  console.log("Full response:", response.data);
 
           const data = response.data?.data;
-          // console.log("Data:", data);
           console.log("token", data.token);
 
           if (response.data?.success) {
@@ -62,16 +59,25 @@ const Login = () => {
             required
           />
         </div>
-        <div className="w-full ">
+        {/* --- 2. UPDATED PASSWORD BLOCK --- */}
+        <div className="w-full relative">
           <p>Password</p>
           <input
             onChange={(e) => setPassword(e.target.value)}
             value={password}
             className="border border-[#DADADA] rounded w-full p-2 mt-1"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
           />
+          <img
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-9 cursor-pointer"
+            src={showPassword ? assets.eye_open : assets.eye_close}
+            alt="Toggle password visibility"
+            width={20}
+          />
         </div>
+        {/* --- END OF UPDATED BLOCK --- */}
         <button className="bg-primary-custom text-white w-full py-2 rounded-md text-base">
           Login
         </button>

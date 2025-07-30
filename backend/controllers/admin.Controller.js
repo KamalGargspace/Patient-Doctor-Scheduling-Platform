@@ -55,17 +55,17 @@ const addDoctor = asyncHandler(async (req, res, next) => {
             experience,
             about,
             fees,
-            address:JSON.parse(address),
+            address: JSON.parse(address),
             date: Date.now()
         };
       
         const newDoctor = new doctorModel(doctorData);
         await newDoctor.save();
 
-        res.status(201).json(new ApiResponse(201, "Doctor Added Successfully", newDoctor));
+        res.status(201).json(new ApiResponse(201, newDoctor, "Doctor Added Successfully"));
     } catch (error) {
         console.error("Error adding doctor:", error);
-        res.json(new ApiError(500, "Internal Server Error", error.message));
+        res.json(new ApiError(500,error.message));
     }
 })
 
@@ -88,7 +88,19 @@ const loginAdmin = asyncHandler(async (req, res, next) => {
     }
 });
     
+//Api to get all doctors list for panel
+const getAllDoctors = asyncHandler(async (req, res, next) => {
+    try {
+
+        const doctors = await doctorModel.find({}).select("-password");
+        res.json(new ApiResponse(200, doctors, "Doctors fetched successfully"));
+
+    } catch (error) {
+        console.error("Error fetching doctors:", error);
+        res.json(new ApiError(500,error.message));
+        
+    }
+})
 
 
-
-export { addDoctor, loginAdmin };
+export { addDoctor, loginAdmin,getAllDoctors };
