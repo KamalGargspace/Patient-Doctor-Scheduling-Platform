@@ -62,10 +62,10 @@ const addDoctor = asyncHandler(async (req, res, next) => {
         const newDoctor = new doctorModel(doctorData);
         await newDoctor.save();
 
-        res.status(201).json(new ApiResponse(201, newDoctor, "Doctor Added Successfully"));
+        return res.status(201).json(new ApiResponse(201, newDoctor, "Doctor Added Successfully"));
     } catch (error) {
         console.error("Error adding doctor:", error);
-        res.json(new ApiError(500,error.message));
+        return res.json(new ApiError(500,error.message));
     }
 })
 
@@ -84,7 +84,7 @@ const loginAdmin = asyncHandler(async (req, res, next) => {
         }
     } catch (error) {
         console.error("Error logging in admin:", error);
-        res.json(new ApiError(500, "Internal Server Error", error.message));
+        return res.json(new ApiError(500, "Internal Server Error", error.message));
     }
 });
     

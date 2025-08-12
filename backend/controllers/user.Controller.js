@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { uploadOnCloudinary } from "../config/cloudinary.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   try {
@@ -42,11 +43,9 @@ const registerUser = asyncHandler(async (req, res, next) => {
     const newUser = new userModel(userData);
     const user = await newUser.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: process.env.JWT_EXPIRATION,
-    });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
 
-    res.status(201).json(
+    return res.status(201).json(
       new ApiResponse(201, { token }, "User Registered Successfully")
     );
   } catch (error) {
@@ -54,5 +53,69 @@ const registerUser = asyncHandler(async (req, res, next) => {
     return res.json(new ApiError(500, error.message));
   }
 });
+//api for user login 
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res, next) => {
+  try {
+    
+      const {email,password} = req.body;
+      const user = await userModel.findOne({email});
+      if(!user) {
+          throw new ApiError(404, "User not found");
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if(isMatch){
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY,{expiresIn: process.env.JWT_EXPIRATION});
+        return res.json(new ApiResponse(200, { token }, "Userr Logged In Successfully"));
+      }
+      else{
+        throw new ApiError(401, "Invalid credentials");
+      }
+
+  } catch (error) {
+    console.error("Error in login User:", error);
+    return res.json(new ApiError(500, error.message));
+  }
+})
+//api to get the user profile data
+
+const getUserProfile = asyncHandler(async (req, res, next) => {
+  try {
+       const userId = req.userId;
+       const userData = await userModel.findById(userId).select(['-password', '-__v']);
+       res.json(new ApiResponse(200, userData, "User profile fetched successfully"));
+  } catch (error) {
+    console.error("Error in getUserProfile:", error);
+    return res.json(new ApiError(500, error.message));
+  }
+})
+
+//API to update user profile data
+const updateUserProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const {name,phone,address,dob,gender} = req.body;
+    const imageFile = req.file;
+    if(!name|| !phone || !dob || !gender){
+      throw new ApiError(400, "Some Details are missing");
+    }
+    const parsedAddress = typeof address === "string" ? JSON.parse(address) : address;
+
+    await userModel.findByIdAndUpdate(userId, {name,phone,address:parsedAddress,dob,gender});
+    if(imageFile) {
+      const imageUpload = await uploadOnCloudinary(imageFile.path);
+      const imageUrl = imageUpload ? imageUpload.secure_url : "";
+      await userModel.findByIdAndUpdate(userId, {image: imageUrl});
+    }
+
+    return res.json(new ApiResponse(200, {}, "User profile updated successfully"));
+
+  } catch (error) {
+    console.error("Error in updateUserProfile:", error);
+    return res.json(new ApiError(500, error.message));
+    
+  }
+})
+export { registerUser,loginUser, getUserProfile,updateUserProfile };
