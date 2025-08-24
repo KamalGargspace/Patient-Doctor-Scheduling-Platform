@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../config/cloudinary.js";
 import doctorModel from "../models/doctor.Model.js"; 
 import jwt from "jsonwebtoken";
 import { json } from "express";
+import appointmentModel from "../models/appointment.Model.js";
 
 
 
@@ -102,5 +103,54 @@ const getAllDoctors = asyncHandler(async (req, res, next) => {
     }
 })
 
+//api to get all the appointements for admin panel
 
-export { addDoctor, loginAdmin,getAllDoctors };
+const appointmentsAdmin = asyncHandler(async (req, res, next) => {
+    try {
+        const appointments = await appointmentModel.find({}).populate('doctorId').populate('userId').sort({slotDate: -1, slotTime: -1});
+        res.json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
+
+    } catch (error) {
+        console.error("Error fetching appointments:", error);
+        res.json(new ApiError(500,error.message));
+    }
+})
+
+//api to cancel the appointment by admin
+
+
+ const appointmentCancel = asyncHandler(async (req, res) => {
+  try {
+    
+    const { appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (!appointmentData) {
+      throw new ApiError(404, "Appointment not found");
+    }
+
+    // Mark appointment as cancelled
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+    // Release the doctor slot
+    const { doctorId, slotDate, slotTime } = appointmentData;   // ✅ FIXED (was docId)
+    const doctorData = await doctorModel.findById(doctorId);
+    if (!doctorData) {
+      throw new ApiError(404, "Doctor not found");
+    }
+
+    let slots_booked = doctorData.slots_booked || {};
+    if (slots_booked[slotDate]) {
+      slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+    }
+
+    await doctorModel.findByIdAndUpdate(doctorId, { slots_booked });
+
+    return res.json(new ApiResponse(200, {}, "Appointment Cancelled Successfully"));
+  } catch (error) {
+    console.log(error);
+    return res.json(new ApiError(500, error.message));
+  }
+});
+
+export { addDoctor, loginAdmin,getAllDoctors, appointmentsAdmin,appointmentCancel };

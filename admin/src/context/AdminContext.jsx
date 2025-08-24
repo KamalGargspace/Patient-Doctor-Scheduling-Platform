@@ -8,6 +8,7 @@ export const AdminContext = createContext();
 const AdminContextProvider = (props) => {
   const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken")?localStorage.getItem("accessToken"):"");
   const [doctors, setDoctors] = useState([]);
+  const [appointments,setAppointments] = useState([])
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
     
@@ -53,12 +54,55 @@ const changeAvailability = async (docId) => {
         toast.error(error.response?.data?.message || "Failed to change availability");
      }
 }
+
+
+const getAllAppointments = async()=>{
+     try {
+         const response = await axios.get(backendUrl + "/api/admin/appointments", {
+          headers: { access_token: accessToken }})
+
+          if(response.data?.success){
+              setAppointments(response.data?.data);
+              console.log("Appointments Data:", response.data?.data);
+          }
+          else{
+              toast.error(response.data?.message || "Failed to fetch appointments");
+          }
+     } catch (error) {
+        console.error("Error fetching appointments:", error);
+        toast.error(error.response?.data?.message || "Failed to fetch appointments");
+     }
+}
+
+const cancelAppointment = async(appointmentId) =>{
+    try {
+        console.log(appointmentId)
+
+        const response = await axios.post(backendUrl + "/api/admin/cancel-appointment",{appointmentId},{headers:{access_token:accessToken}})
+        // console.log("Cancel Response:", response.data);
+
+        if(response.data?.success){
+          toast.success(response.data?.message)
+          getAllAppointments()
+          // getAllDoctors()
+        }
+        else{
+          toast.error(response?.data?.message || "Failed to cancel appointment")
+        }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to cancel appointment")
+    }
+  }
   
   const value = {
     accessToken,
     setAccessToken,
     backendUrl,doctors,getAllDoctors,
-    changeAvailability
+    changeAvailability,
+    appointments,getAllAppointments,
+    setAppointments,
+    cancelAppointment
   };
 
   return (
