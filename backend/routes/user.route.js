@@ -17,4 +17,5 @@ userRouter.route("/payment-razorpay").post(authUser,paymentRazorpay)
 userRouter.route("/verifyRazorpay").post(authUser,verifyRazorpay)
 
 
+
 export default userRouter;

@@ -17,7 +17,7 @@ import eye_close from './eye_close.png'
 export const assets = {
     add_icon,
     admin_logo,
-    appointment_icon,
+    appointments_icon,
     cancel_icon,
     doctor_icon,
     upload_area,
@@ -26,7 +26,7 @@ export const assets = {
     people_icon,
     list_icon,
     tick_icon,
-    appointments_icon,
+    appointment_icon,
     earning_icon,
     eye_open,
     eye_close

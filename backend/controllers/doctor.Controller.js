@@ -1,7 +1,10 @@
+import appointmentModel from "../models/appointment.Model.js";
 import doctorModel from "../models/doctor.Model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 
 const changeAvailability = asyncHandler(async (req, res, next) => {
@@ -26,5 +29,42 @@ const doctorList = asyncHandler(async (req, res, next) => {
     }
 })
 
+//api for the doctor login thing 
 
-export {changeAvailability, doctorList}
+const loginDoctor = asyncHandler(async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        const doctor = await doctorModel.findOne({email})
+
+        if(!doctor){
+            throw new ApiError(404, "Doctor not found");
+        }
+        const isMatch = await bcrypt.compare(password,doctor.password)
+
+        if(isMatch){
+            const token = await jwt.sign({id:doctor._id},process.env.JWT_SECRET_KEY,{expiresIn:'1d'});
+            return res.json(new ApiResponse(200, {token}, "Login successful"));
+        }
+        else{
+            throw new ApiError(401, "Invalid credentials");
+        }
+    } catch (error) {
+        console.log(error)
+        return  res.json(new ApiError(error.statusCode || 500, error.message));
+    }
+})
+
+//api to get the doctor appointments for doctor panel
+const appointementsDoctor = asyncHandler(async(req,res)=>{
+    try {
+        const doctorId = req.doctorId;
+        const appointments  = await appointmentModel.find({doctorId}).populate('doctorId').populate('userId')
+
+        return res.json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
+    } catch (error) {
+        console.log(error)
+        return  res.json(new ApiError(error.statusCode || 500, error.message || "Internal Server Error"));
+    }
+
+})
+export {changeAvailability, doctorList,loginDoctor,appointementsDoctor}

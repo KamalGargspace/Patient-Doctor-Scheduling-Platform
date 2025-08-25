@@ -8,6 +8,7 @@ import doctorModel from "../models/doctor.Model.js";
 import jwt from "jsonwebtoken";
 import { json } from "express";
 import appointmentModel from "../models/appointment.Model.js";
+import userModel from "../models/user.Model.js";
 
 
 
@@ -149,8 +150,28 @@ const appointmentsAdmin = asyncHandler(async (req, res, next) => {
     return res.json(new ApiResponse(200, {}, "Appointment Cancelled Successfully"));
   } catch (error) {
     console.log(error);
-    return res.json(new ApiError(500, error.message));
+    return res.json(new ApiError(error.statusCode || 500, error.message));
   }
 });
 
-export { addDoctor, loginAdmin,getAllDoctors, appointmentsAdmin,appointmentCancel };
+const adminDashboard = asyncHandler(async (req, res, next) => {
+    try {
+        const doctors = await doctorModel.find({})
+        const users = await userModel.find({})
+        const appointments = await appointmentModel.find({}).populate('doctorId').populate('userId')
+
+        const dashData = {
+            doctors: doctors.length,
+            appointments: appointments.length,
+            patients: users.length,
+            latestAppointments: appointments.reverse().slice(0,5)  // Fetch the 5 most recent appointments
+
+        }
+
+        return res.json(new ApiResponse(200, dashData, "Dashboard data fetched successfully"));
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        return res.json(new ApiError(error.statusCode || 500, error.message));
+    }
+});
+export { addDoctor, loginAdmin,getAllDoctors, appointmentsAdmin,appointmentCancel,adminDashboard };

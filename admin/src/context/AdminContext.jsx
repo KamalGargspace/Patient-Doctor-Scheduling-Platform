@@ -9,6 +9,7 @@ const AdminContextProvider = (props) => {
   const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken")?localStorage.getItem("accessToken"):"");
   const [doctors, setDoctors] = useState([]);
   const [appointments,setAppointments] = useState([])
+  const [dashData,setDashData] = useState(false);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
     
@@ -94,7 +95,23 @@ const cancelAppointment = async(appointmentId) =>{
       toast.error(error.response?.data?.message || "Failed to cancel appointment")
     }
   }
-  
+  const getDashboardData = async()=>{
+    try {
+        const response = await axios.get(backendUrl + "/api/admin/dashboard", {
+            headers: { access_token: accessToken }
+        });
+
+        if (response.data?.success) {
+            setDashData(response.data?.data);
+            console.log("Dashboard Data:", response.data?.data);
+        } else {
+            toast.error(response.data?.message || "Failed to fetch dashboard data");
+        }
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        toast.error(error.response?.data?.message || "Failed to fetch dashboard data");
+    }
+  }
   const value = {
     accessToken,
     setAccessToken,
@@ -102,7 +119,9 @@ const cancelAppointment = async(appointmentId) =>{
     changeAvailability,
     appointments,getAllAppointments,
     setAppointments,
-    cancelAppointment
+    cancelAppointment,
+    getDashboardData,
+    dashData
   };
 
   return (
