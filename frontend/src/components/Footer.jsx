@@ -1,8 +1,13 @@
 import React from 'react'
 import { assets } from '../assets/assets'
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from 'react-icons/fa'
+import { NavLink } from 'react-router-dom'
 
 const Footer = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className='w-full bg-white border-t border-gray-100 mt-32 pt-12 px-6 md:px-10 lg:px-16 xl:px-24 text-sm text-gray-600'>
 
@@ -27,10 +32,34 @@ const Footer = () => {
         <div>
           <p className='text-lg font-semibold text-gray-800 mb-4'>COMPANY</p>
           <ul className='flex flex-col gap-2'>
-            <li className='hover:text-primary-custom cursor-pointer transition'>Home</li>
-            <li className='hover:text-primary-custom cursor-pointer transition'>About Us</li>
-            <li className='hover:text-primary-custom cursor-pointer transition'>Contact</li>
-            <li className='hover:text-primary-custom cursor-pointer transition'>Terms & Privacy</li>
+            <NavLink 
+              to='/' 
+              onClick={scrollToTop} 
+              className={({ isActive }) => isActive ? 'text-primary-custom' : 'hover:text-primary-custom'}
+            >
+              Home
+            </NavLink>
+            <NavLink 
+              to='/about' 
+              onClick={scrollToTop} 
+              className={({ isActive }) => isActive ? 'text-primary-custom' : 'hover:text-primary-custom'}
+            >
+              About Us
+            </NavLink>
+            <NavLink 
+              to='/contact' 
+              onClick={scrollToTop} 
+              className={({ isActive }) => isActive ? 'text-primary-custom' : 'hover:text-primary-custom'}
+            >
+              Contact
+            </NavLink>
+            <NavLink 
+              to='/privacy' 
+              onClick={scrollToTop} 
+              className={({ isActive }) => isActive ? 'text-primary-custom' : 'hover:text-primary-custom'}
+            >
+              Terms & Privacy
+            </NavLink>
           </ul>
         </div>
 
@@ -38,9 +67,9 @@ const Footer = () => {
         <div>
           <p className='text-lg font-semibold text-gray-800 mb-4'>CONTACT</p>
           <ul className='flex flex-col gap-2'>
-            <li className='hover:text-primary-custom transition'>+91-9876543210</li>
-            <li className='hover:text-primary-custom transition'>support@prescripto.com</li>
-            <li className='hover:text-primary-custom transition'>Delhi, India</li>
+            <a href='tel:+919876543210' className='hover:text-primary-custom transition'>+91-9876543210</a>
+            <a href='mailto:support@prescripto.com' className='hover:text-primary-custom transition'>support@prescripto.com</a>
+            <p className='hover:text-primary-custom transition'>Delhi, India</p>
           </ul>
         </div>
 
@@ -50,16 +79,23 @@ const Footer = () => {
           <p className='mb-3 text-gray-500 text-sm'>
             Subscribe to our newsletter to get the latest health tips & updates.
           </p>
-          <div className='flex items-center bg-gray-100 rounded-full overflow-hidden'>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              alert("Subscribed successfully 🚀");
+            }}
+            className='flex items-center bg-gray-100 rounded-full overflow-hidden'
+          >
             <input
               type='email'
               placeholder='Your email'
+              required
               className='flex-grow px-4 py-2 bg-transparent focus:outline-none text-sm'
             />
-            <button className='bg-primary-custom text-white px-5 py-2 text-sm font-medium hover:opacity-90 transition'>
+            <button type='submit' className='bg-primary-custom text-white px-5 py-2 text-sm font-medium hover:opacity-90 transition'>
               Subscribe
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
