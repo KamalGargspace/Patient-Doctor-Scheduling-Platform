@@ -7,9 +7,7 @@ const connectDB = async () => {
     mongoose.connection.on("connected", () => {
       console.log("MongoDB connected (event listener)");
     });
-    const connectionInstance = await mongoose.connect(
-      `${process.env.MONGODB_URI}/${DB_NAME}`
-    );
+    const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}?retryWrites=true&w=majority`);
 
     // Log the connection details
     console.log(
