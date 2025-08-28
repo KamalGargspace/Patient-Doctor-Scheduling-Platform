@@ -11,7 +11,7 @@ import userRouter from "./routes/user.route.js";
 
 const app = express();
 
-const port = process.env.PORT || 4000;
+// const port = process.env.PORT || 4000;
 
 connectDB();
 connectCloudinary();
@@ -31,4 +31,6 @@ app.get("/", (req, res) => {
   res.send("API WORKING FINE");
 });
 
-app.listen(port, () => console.log("Server started", port));
+// app.listen(port, () => console.log("Server started", port));
+
+export default app;
