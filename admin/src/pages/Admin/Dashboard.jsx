@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useEffect } from "react";
 import { assets } from "../../assets/assets";
-import { AppContext } from "../../context/appContext";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const Dashboard = () => {
   const { getDashboardData, dashData, accessToken, cancelAppointment } =
